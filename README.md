@@ -37,5 +37,5 @@ DNS Inspector queries a domain's DNS records and presents the results in a human
 Clone the repository:
 
 ```bash
-git https://github.com/DenzelVW-xyz/DNS-Inspector.git
+git clone https://github.com/DenzelVW-xyz/DNS-Inspector.git
 cd DNS-Inspector

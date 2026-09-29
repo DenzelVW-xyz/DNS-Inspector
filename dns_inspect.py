@@ -18,8 +18,8 @@ def check_dmarc(domain):
     
     try:
         resolved_dns = dns.resolver.resolve(dmarc_domain, "TXT")
-    except (dns.resolver.NXDOMAIN, dns.resolver.NoAnswer) as e:
-        print("Error:", e)
+    except (dns.resolver.NXDOMAIN, dns.resolver.NoAnswer):
+        print("DMARC: Not found")
         return
         
     for record in resolved_dns:
@@ -44,8 +44,11 @@ def check_spf(domain):
     
     try:
         resolved_dns = dns.resolver.resolve(domain, "TXT")
-    except (dns.resolver.NXDOMAIN, dns.resolver.NoAnswer) as e:
-        print("Error:", e)
+    except dns.resolver.NXDOMAIN:
+        print("Domain does not exist")
+        return
+    except dns.resolver.NoAnswer:
+        print("SPF policy: Not Found")
         return
     
     spf_found = False
@@ -85,8 +88,11 @@ def check_aaaa(domain):
     
     try:
         resolved_dns = dns.resolver.resolve(domain, "AAAA")
-    except (dns.resolver.NXDOMAIN, dns.resolver.NoAnswer) as e:
-        print("Error:", e)
+    except dns.resolver.NoAnswer:
+        print("AAAA: Not found")
+        return
+    except dns.resolver.NXDOMAIN:
+        print("Domain does not exist")
         return
     
     for record in resolved_dns:
@@ -96,8 +102,11 @@ def check_mx(domain):
     
     try:
         resolved_dns = dns.resolver.resolve(domain, "MX")
-    except (dns.resolver.NXDOMAIN, dns.resolver.NoAnswer) as e:
-        print("Error:", e)
+    except dns.resolver.NoAnswer:
+        print("MX: Not found")
+        return
+    except dns.resolver.NXDOMAIN:
+        print("Domain does not exist")
         return
     
     for record in resolved_dns:
@@ -107,8 +116,11 @@ def check_ns(domain):
     
     try:
         resolved_dns = dns.resolver.resolve(domain, "NS")
-    except (dns.resolver.NXDOMAIN, dns.resolver.NoAnswer) as e:
-        print("Error:", e)
+    except dns.resolver.NoAnswer:
+        print("NS: Not found")
+        return
+    except dns.resolver.NXDOMAIN:
+        print("Domain does not exist")
         return
     
     for record in resolved_dns:
@@ -121,7 +133,6 @@ def check_cname(domain):
     except dns.resolver.NXDOMAIN:
         print("Domain does not exist")
         return
-
     except dns.resolver.NoAnswer:
         print("CNAME: Not found")
         return
@@ -144,14 +155,11 @@ def check_soa(domain):
         print("Primary nameserver:", record.mname)
         print("Responsible:", record.rname)
         print("Serial:", record.serial)
-        print("Refresh:", record.refresh)
-        print("Retry:", record.retry)
-        print("Expire:", record.expire)
-        print("Minimum:", record.minimum)
+        print("Refresh:", record.refresh, "seconds")
+        print("Retry:", record.retry, "seconds")
+        print("Expire:", record.expire, "seconds")
+        print("Minimum:", record.minimum, "seconds")
 
-  
-        
-        
 
 if __name__ == "__main__":
     domain = main()
@@ -159,13 +167,13 @@ if __name__ == "__main__":
     check_a(domain)
     check_aaaa(domain)
     check_cname(domain)
-    print("")
+    print()
     print("======= Email =======")
     check_mx(domain)
     check_dmarc(domain)
     check_spf(domain)
-    print("")
+    print()
     print("======= Zone and Authority =======")
     check_soa(domain)
     check_ns(domain)
-    print("")
+    print()
