@@ -71,10 +71,13 @@ def check_a(domain):
     
     try:
         resolved_dns = dns.resolver.resolve(domain, "A")
-    except (dns.resolver.NXDOMAIN, dns.resolver.NoAnswer) as e:
-        print("Error:", e)
+    except dns.resolver.NoAnswer:
+        print("A: Not found")
         return
-    
+    except dns.resolver.NXDOMAIN:
+        print("Domain does not exist")
+        return
+        
     for record in resolved_dns:
         print("A:", record.address)
 
@@ -126,12 +129,43 @@ def check_cname(domain):
     for record in resolved_dns:
         print("CNAME:", record.target)        
 
+def check_soa(domain):
+    
+    try:
+        resolved_dns = dns.resolver.resolve(domain, "SOA")
+    except dns.resolver.NoAnswer:
+        print("SOA: Not found")
+        return
+    except dns.resolver.NXDOMAIN:
+        print("Domain does not exist")
+        return
+
+    for record in resolved_dns:
+        print("Primary nameserver:", record.mname)
+        print("Responsible:", record.rname)
+        print("Serial:", record.serial)
+        print("Refresh:", record.refresh)
+        print("Retry:", record.retry)
+        print("Expire:", record.expire)
+        print("Minimum:", record.minimum)
+
+  
+        
+        
+
 if __name__ == "__main__":
     domain = main()
+    print("======= Address and Routing =======")
     check_a(domain)
     check_aaaa(domain)
+    check_cname(domain)
+    print("")
+    print("======= Email =======")
     check_mx(domain)
-    check_ns(domain)
     check_dmarc(domain)
     check_spf(domain)
-    check_cname(domain)
+    print("")
+    print("======= Zone and Authority =======")
+    check_soa(domain)
+    check_ns(domain)
+    print("")
