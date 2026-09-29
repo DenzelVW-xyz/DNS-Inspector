@@ -1,6 +1,17 @@
 import dns.resolver
 
-domain = "google.com"
+def main():
+    domain = input("Please enter a domain: ").strip()
+    
+    try:
+        dns.resolver.resolve(domain, "A")
+    except dns.resolver.NXDOMAIN:
+        print("Domain does not exist")
+        exit()
+    except dns.resolver.LifetimeTimeout:
+        print("Connection Timed Out")
+        exit()
+    return domain
 
 def check_dmarc(domain):
     dmarc_domain = "_dmarc." + domain
@@ -100,9 +111,27 @@ def check_ns(domain):
     for record in resolved_dns:
         print("NS:", record.target)
 
-check_a(domain)
-check_aaaa(domain)
-check_mx(domain)
-check_ns(domain)
-check_dmarc(domain)
-check_spf(domain)
+def check_cname(domain):
+    
+    try:
+        resolved_dns = dns.resolver.resolve(domain, "CNAME")
+    except dns.resolver.NXDOMAIN:
+        print("Domain does not exist")
+        return
+
+    except dns.resolver.NoAnswer:
+        print("CNAME: Not found")
+        return
+    
+    for record in resolved_dns:
+        print("CNAME:", record.target)        
+
+if __name__ == "__main__":
+    domain = main()
+    check_a(domain)
+    check_aaaa(domain)
+    check_mx(domain)
+    check_ns(domain)
+    check_dmarc(domain)
+    check_spf(domain)
+    check_cname(domain)
