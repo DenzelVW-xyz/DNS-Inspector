@@ -79,10 +79,12 @@ def check_a(domain):
         return
     except dns.resolver.NXDOMAIN:
         print("Domain does not exist")
-        return
-        
+        return        
+
     for record in resolved_dns:
         print("A:", record.address)
+    
+    print("A TTL:", resolved_dns.rrset.ttl, "seconds")
 
 def check_aaaa(domain):
     
@@ -98,6 +100,8 @@ def check_aaaa(domain):
     for record in resolved_dns:
         print("AAAA:", record.address)
 
+    print("AAAA TTL:", resolved_dns.rrset.ttl, "seconds")
+    
 def check_mx(domain):
     
     try:
@@ -111,6 +115,8 @@ def check_mx(domain):
     
     for record in resolved_dns:
         print(f"MX: <{record.exchange}> (Preference:{record.preference})")
+        
+    print("MX TTL:", resolved_dns.rrset.ttl, "seconds")
 
 def check_ns(domain):
     
@@ -125,6 +131,8 @@ def check_ns(domain):
     
     for record in resolved_dns:
         print("NS:", record.target)
+        
+    print("NS TTL:", resolved_dns.rrset.ttl, "seconds")
 
 def check_cname(domain):
     
@@ -138,7 +146,9 @@ def check_cname(domain):
         return
     
     for record in resolved_dns:
-        print("CNAME:", record.target)        
+        print("CNAME:", record.target)
+        
+    print("CNAME TTL:", resolved_dns.rrset.ttl, "seconds")     
 
 def check_soa(domain):
     
@@ -159,7 +169,24 @@ def check_soa(domain):
         print("Retry:", record.retry, "seconds")
         print("Expire:", record.expire, "seconds")
         print("Minimum:", record.minimum, "seconds")
+    
+    print("SOA TTL:", resolved_dns.rrset.ttl, "seconds")
 
+def check_txt(domain):
+    
+    try:
+        resolved_dns = dns.resolver.resolve(domain, "TXT")
+    except dns.resolver.NoAnswer:
+        print("TXT: Not found")
+        return
+    except dns.resolver.NXDOMAIN:
+        print("Domain does not exist")
+        return
+    
+    for record in resolved_dns:
+        print("TXT:", str(record))
+        
+    print("TOA TTL:", resolved_dns.rrset.ttl, "seconds")
 
 if __name__ == "__main__":
     domain = main()
@@ -176,4 +203,7 @@ if __name__ == "__main__":
     print("======= Zone and Authority =======")
     check_soa(domain)
     check_ns(domain)
+    print()
+    print("======= General / Other =======")
+    check_txt(domain)
     print()
